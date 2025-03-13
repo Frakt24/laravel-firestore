@@ -84,9 +84,9 @@ class FirestoreAuthentication
      * @param string $password
      * @param boolean $setToken
      *
-     * @return object
+     * @return object|array
      */
-    public function signInEmailPassword(string $email, string $password, bool $setToken = true): object
+    public function signInEmailPassword(string $email, string $password, bool $setToken = true): object|array
     {
         $response = $this->authRequest('POST', 'verifyPassword', [
             'form_params' => [
