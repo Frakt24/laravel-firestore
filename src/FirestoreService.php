@@ -2,9 +2,13 @@
 
 namespace Frakt24\LaravelPHPFirestore;
 
+use Frakt24\LaravelPHPFirestore\Authentication\FirestoreAuthentication;
+
 class FirestoreService
 {
     protected FirestoreClient $client;
+
+    private FirestoreAuthentication $authenticator;
 
     public function __construct(array $config = [])
     {
@@ -99,6 +103,11 @@ class FirestoreService
     public function getDocument(string $collection, array $parameters = [], array $options= []): FirestoreDocument
     {
         return $this->client->getDocument($collection, $parameters, $options);
+    }
+
+    public function authenticator(): FirestoreAuthentication
+    {
+        return $this->authenticator;
     }
 
 }
