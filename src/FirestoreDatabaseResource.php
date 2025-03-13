@@ -10,7 +10,7 @@ use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
 class FirestoreDatabaseResource
 {
     /**
-     * @var \MrShan0\PHPFirestore\FirestoreClient
+     * @var \Frakt24\LaravelPHPFirestore\FirestoreClient
      */
     private $client;
 
@@ -29,7 +29,7 @@ class FirestoreDatabaseResource
      * @param string $path
      * @param boolean $shouldBeOdd
      *
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\InvalidPathProvided
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\InvalidPathProvided
      *
      * @return boolean
      */
@@ -82,7 +82,7 @@ class FirestoreDatabaseResource
      * @param array $parameters
      * @param array $options
      *
-     * @return \MrShan0\PHPFirestore\FirestoreDocument
+     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
      */
     public function getDocument($documentPath, array $parameters = [], array $options = [])
     {
@@ -148,7 +148,7 @@ class FirestoreDatabaseResource
      * @param array $parameters
      * @param array $options
      *
-     * @return \MrShan0\PHPFirestore\FirestoreDocument
+     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
      */
     public function addDocument($collection, $payload, $documentId = null, array $parameters = [], array $options = [])
     {
@@ -187,9 +187,9 @@ class FirestoreDatabaseResource
      * @param array $parameters
      * @param array $options
      *
-     * @return \MrShan0\PHPFirestore\FirestoreDocument
+     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
      */
-    public function addNestedDocuments($documentPath, $payload, $documentId = null, array $parameters = [], array $options = []): \MrShan0\PHPFirestore\FirestoreDocument
+    public function addNestedDocuments($documentPath, $payload, $documentId = null, array $parameters = [], array $options = []): \Frakt24\LaravelPHPFirestore\FirestoreDocument
     {
         $payload = FirestoreHelper::normalizedNestedArray($payload);
         return $this->addDocument($documentPath, $payload, $documentId , $parameters,$options);
@@ -205,7 +205,7 @@ class FirestoreDatabaseResource
      * @param array $parameters
      * @param array $options
      *
-     * @return \MrShan0\PHPFirestore\FirestoreDocument
+     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
      */
     public function updateDocument($documentPath, $payload, $documentExists = null, array $parameters = [], array $options = [])
     {
@@ -223,7 +223,7 @@ class FirestoreDatabaseResource
      * @param array $parameters
      * @param array $options
      *
-     * @return \MrShan0\PHPFirestore\FirestoreDocument
+     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
      */
     public function setDocument($documentPath, $payload, $documentExists = null, array $parameters = [], array $options = [])
     {

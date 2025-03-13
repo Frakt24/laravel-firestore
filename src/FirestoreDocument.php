@@ -25,7 +25,7 @@ class FirestoreDocument {
     /**
      * Hold DatabaseResource Object
      *
-     * @var \MrShan0\PHPFirestore\FirestoreDatabaseResource
+     * @var \Frakt24\LaravelPHPFirestore\FirestoreDatabaseResource
      */
     private $databaseResource = null;
 
@@ -102,7 +102,7 @@ class FirestoreDocument {
      *
      * @param array $payload
      *
-     * @return \MrShan0\PHPFirestore\FirestoreDocument
+     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
      */
     public function fillValues(array $payload)
     {
@@ -233,7 +233,7 @@ class FirestoreDocument {
     /**
      * @param array $value
      *
-     * @return \MrShan0\PHPFirestore\Fields\FirestoreObject
+     * @return \Frakt24\LaravelPHPFirestore\Fields\FirestoreObject
      */
     public function getObject($value)
     {
@@ -259,7 +259,7 @@ class FirestoreDocument {
     /**
      * @param array $value
      *
-     * @return \MrShan0\PHPFirestore\Fields\FirestoreReference
+     * @return \Frakt24\LaravelPHPFirestore\Fields\FirestoreReference
      */
     public function getReference($value)
     {
@@ -279,7 +279,7 @@ class FirestoreDocument {
     /**
      * @param array $value
      *
-     * @return \MrShan0\PHPFirestore\Fields\FirestoreGeoPoint
+     * @return \Frakt24\LaravelPHPFirestore\Fields\FirestoreGeoPoint
      */
     public function getGeoPoint($value)
     {
@@ -296,7 +296,7 @@ class FirestoreDocument {
     }
 
     /**
-     * @return \MrShan0\PHPFirestore\Fields\FirestoreTimestamp
+     * @return \Frakt24\LaravelPHPFirestore\Fields\FirestoreTimestamp
      */
     public function getTimestamp($value)
     {
@@ -370,7 +370,7 @@ class FirestoreDocument {
     /**
      * @param string $value
      *
-     * @return \MrShan0\PHPFirestore\Fields\FirestoreBytes
+     * @return \Frakt24\LaravelPHPFirestore\Fields\FirestoreBytes
      */
     public function getBytes($value)
     {
@@ -394,7 +394,7 @@ class FirestoreDocument {
      *
      * @param  string|array
      *
-     * @return \MrShan0\PHPFirestore\FirestoreDocument
+     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
      */
     public function deleteFields($fields)
     {
@@ -410,7 +410,7 @@ class FirestoreDocument {
     /**
      * It will return value that Firestore needs to store.
      *
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\FieldNotFound
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\FieldNotFound
      *
      * @param string $fieldName
      * @return mixed
@@ -438,7 +438,7 @@ class FirestoreDocument {
     /**
      * Extract value from object by key
      *
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\FieldNotFound
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\FieldNotFound
      *
      * @param string $fieldName
      * @return mixed

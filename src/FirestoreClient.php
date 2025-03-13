@@ -2,6 +2,7 @@
 namespace Frakt24\LaravelPHPFirestore;
 
 use Exception;
+use Frakt24\LaravelPHPFirestore\Query\FirestoreQuery;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\BadResponseException;
 use Guzzle\Http\Message\Response;
@@ -66,7 +67,7 @@ class FirestoreClient
     /**
      * FirestoreAuthentication object
      *
-     * @var \MrShan0\PHPFirestore\Authentication\FirestoreAuthentication
+     * @var FirestoreAuthentication
      */
     private $authenticator;
 
@@ -268,7 +269,7 @@ class FirestoreClient
     }
 
     /**
-     * @return \MrShan0\PHPFirestore\Authentication\FirestoreAuthentication
+     * @return FirestoreAuthentication
      */
     public function getFirestoreAuth()
     {
@@ -282,7 +283,7 @@ class FirestoreClient
     }
 
     /**
-     * @return \MrShan0\PHPFirestore\Query\FirestoreQuery
+     * @return \Frakt24\LaravelPHPFirestore\Query\FirestoreQuery
      */
     public function getFirestoreQuery()
     {
@@ -340,13 +341,13 @@ class FirestoreClient
      * @param array $options
      * @param array $parameters
      *
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\BadRequest
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\Conflict
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\Forbidden
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\NotFound
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\Unauthorized
-     * @throws \MrShan0\PHPFirestore\Exceptions\Server\InternalServerError
-     * @throws \MrShan0\PHPFirestore\Exceptions\UnhandledRequestError
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\BadRequest
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\Conflict
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\Forbidden
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\NotFound
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\Unauthorized
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Server\InternalServerError
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\UnhandledRequestError
      *
      * @return mixed
      */
@@ -380,13 +381,13 @@ class FirestoreClient
      *
      * @param BadResponseException $exception
      *
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\BadRequest
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\Conflict
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\Forbidden
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\NotFound
-     * @throws \MrShan0\PHPFirestore\Exceptions\Client\Unauthorized
-     * @throws \MrShan0\PHPFirestore\Exceptions\Server\InternalServerError
-     * @throws \MrShan0\PHPFirestore\Exceptions\UnhandledRequestError
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\BadRequest
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\Conflict
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\Forbidden
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\NotFound
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\Unauthorized
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Server\InternalServerError
+     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\UnhandledRequestError
      *
      */
     private function handleError(Exception $exception)
