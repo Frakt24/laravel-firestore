@@ -1,11 +1,11 @@
 <?php
-namespace MrShan0\PHPFirestore;
+namespace Frakt24\LaravelPHPFirestore;
 
-use MrShan0\PHPFirestore\Exceptions\Client\InvalidPathProvided;
-use MrShan0\PHPFirestore\Exceptions\Client\NotFound;
-use MrShan0\PHPFirestore\FirestoreDocument;
-use MrShan0\PHPFirestore\FirestoreClient;
-use MrShan0\PHPFirestore\Helpers\FirestoreHelper;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\InvalidPathProvided;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\NotFound;
+use Frakt24\LaravelPHPFirestore\FirestoreDocument;
+use Frakt24\LaravelPHPFirestore\FirestoreClient;
+use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
 
 class FirestoreDatabaseResource
 {

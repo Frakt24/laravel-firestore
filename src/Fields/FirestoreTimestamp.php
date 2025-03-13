@@ -1,9 +1,9 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Fields;
+namespace Frakt24\LaravelPHPFirestore\Fields;
 
 use DateTime;
-use MrShan0\PHPFirestore\Contracts\FirestoreDataTypeContract;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreDataTypeContract;
 
 class FirestoreTimestamp implements FirestoreDataTypeContract
 {

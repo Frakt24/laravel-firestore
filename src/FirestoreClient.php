@@ -1,13 +1,13 @@
 <?php
-namespace MrShan0\PHPFirestore;
+namespace Frakt24\LaravelPHPFirestore;
 
 use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\BadResponseException;
 use Guzzle\Http\Message\Response;
-use MrShan0\PHPFirestore\Authentication\FirestoreAuthentication;
-use MrShan0\PHPFirestore\Handlers\RequestErrorHandler;
-use MrShan0\PHPFirestore\Helpers\FirestoreHelper;
+use Frakt24\LaravelPHPFirestore\Authentication\FirestoreAuthentication;
+use Frakt24\LaravelPHPFirestore\Handlers\RequestErrorHandler;
+use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
 
 /**
  * @method array listDocuments($collection, array $parameters = [], array $options = [])

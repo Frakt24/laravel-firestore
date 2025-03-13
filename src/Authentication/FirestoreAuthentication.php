@@ -1,5 +1,5 @@
 <?php
-namespace MrShan0\PHPFirestore\Authentication;
+namespace Frakt24\LaravelPHPFirestore\Authentication;
 
 use Exception;
 use GuzzleHttp\Exception\BadResponseException;

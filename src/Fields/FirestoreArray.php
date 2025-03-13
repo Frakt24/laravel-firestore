@@ -1,10 +1,10 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Fields;
+namespace Frakt24\LaravelPHPFirestore\Fields;
 
-use MrShan0\PHPFirestore\Contracts\FirestoreDataTypeContract;
-use MrShan0\PHPFirestore\FirestoreDocument;
-use MrShan0\PHPFirestore\Helpers\FirestoreHelper;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreDataTypeContract;
+use Frakt24\LaravelPHPFirestore\FirestoreDocument;
+use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
 
 class FirestoreArray implements FirestoreDataTypeContract
 {

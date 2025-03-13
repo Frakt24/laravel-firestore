@@ -1,5 +1,5 @@
 <?php
-namespace MrShan0\PHPFirestore\Query;
+namespace Frakt24\LaravelPHPFirestore\Query;
 
 class FirestoreQuery
 {

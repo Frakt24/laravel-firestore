@@ -1,6 +1,6 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Exceptions\Client;
+namespace Frakt24\LaravelPHPFirestore\Exceptions\Client;
 
 class InvalidPathProvided extends \Exception
 {

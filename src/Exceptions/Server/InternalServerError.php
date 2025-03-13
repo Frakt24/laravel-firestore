@@ -1,6 +1,6 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Exceptions\Server;
+namespace Frakt24\LaravelPHPFirestore\Exceptions\Server;
 
 class InternalServerError extends \Exception
 {

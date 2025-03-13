@@ -1,8 +1,8 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Fields;
+namespace Frakt24\LaravelPHPFirestore\Fields;
 
-use MrShan0\PHPFirestore\Contracts\FirestoreDataTypeContract;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreDataTypeContract;
 
 class FirestoreGeoPoint implements FirestoreDataTypeContract
 {

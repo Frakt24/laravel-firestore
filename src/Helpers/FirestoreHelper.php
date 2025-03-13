@@ -1,14 +1,14 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Helpers;
+namespace Frakt24\LaravelPHPFirestore\Helpers;
 
-use MrShan0\PHPFirestore\Attributes\FirestoreDeleteAttribute;
-use MrShan0\PHPFirestore\Fields\FirestoreArray;
-use MrShan0\PHPFirestore\Fields\FirestoreGeoPoint;
-use MrShan0\PHPFirestore\Fields\FirestoreObject;
-use MrShan0\PHPFirestore\Fields\FirestoreReference;
-use MrShan0\PHPFirestore\Fields\FirestoreTimestamp;
-use MrShan0\PHPFirestore\Fields\FirestoreBytes;
+use Frakt24\LaravelPHPFirestore\Attributes\FirestoreDeleteAttribute;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreArray;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreGeoPoint;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreObject;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreReference;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreTimestamp;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreBytes;
 
 class FirestoreHelper
 {

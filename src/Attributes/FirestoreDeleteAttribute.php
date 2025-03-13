@@ -1,6 +1,6 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Attributes;
+namespace Frakt24\LaravelPHPFirestore\Attributes;
 
 class FirestoreDeleteAttribute
 {

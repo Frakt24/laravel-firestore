@@ -1,6 +1,6 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Tests;
+namespace Frakt24\LaravelPHPFirestore\Tests;
 
 use MrShan0\PHPFirestore\FirestoreDocument;
 use PHPUnit\Framework\TestCase;

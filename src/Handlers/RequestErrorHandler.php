@@ -1,14 +1,14 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Handlers;
+namespace Frakt24\LaravelPHPFirestore\Handlers;
 
-use MrShan0\PHPFirestore\Exceptions\Client\BadRequest;
-use MrShan0\PHPFirestore\Exceptions\Client\Conflict;
-use MrShan0\PHPFirestore\Exceptions\Client\Forbidden;
-use MrShan0\PHPFirestore\Exceptions\Client\NotFound;
-use MrShan0\PHPFirestore\Exceptions\Client\Unauthorized;
-use MrShan0\PHPFirestore\Exceptions\Server\InternalServerError;
-use MrShan0\PHPFirestore\Exceptions\UnhandledRequestError;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\BadRequest;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\Conflict;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\Forbidden;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\NotFound;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\Unauthorized;
+use Frakt24\LaravelPHPFirestore\Exceptions\Server\InternalServerError;
+use Frakt24\LaravelPHPFirestore\Exceptions\UnhandledRequestError;
 
 class RequestErrorHandler
 {

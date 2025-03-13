@@ -1,15 +1,21 @@
 {
-    "name": "bensontrent/firestore-php",
-    "description": "Firestore PHP Client without gRPC and support for Guzzle 7. Forked from archived project ahsankhatri/firestore-php",
+    "name": "frakt24/laravel-firestore",
+    "description": "Laravel Firestore PHP Client without gRPC and support for Guzzle 7. Forked from bensontrent/firestore-php",
     "keywords": [
         "php",
         "firestore",
         "firebase",
-        "google"
+        "google",
+        "laravel"
     ],
-    "homepage": "https://github.com/bensontrent/firestore-php",
+    "homepage": "https://github.com/Frakt24/laravel-firestore",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Fredrik Borgstein",
+            "email": "fredrik@frakt24.no",
+            "role": "Contributor/Developer"
+        },
          {
             "name": "Benson Trent",
             "email": "bensontrent@gmail.com",
@@ -23,22 +29,23 @@
         }
     ],
     "require": {
-        "php": ">=7.3",
-        "guzzlehttp/guzzle": "~7.0|~6.0|~5.0|~4.0",
+        "php": ">=8.3",
+        "guzzlehttp/guzzle": "~7.0",
         "ext-curl": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "illuminate/support": "^8.0 || ^9.0 || ^10.0"
     },
     "require-dev": {
         "phpunit/phpunit": "9.6"
     },
     "autoload": {
         "psr-4": {
-            "MrShan0\\PHPFirestore\\": "src"
+            "Frakt24\\LaravelPHPFirestore\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MrShan0\\PHPFirestore\\Tests\\": "tests"
+            "Frakt24\\LaravelPHPFirestore\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -48,5 +55,15 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Frakt24\\LaravelPHPFirestore\\FirestoreServiceProvider"
+            ],
+            "aliases": {
+                "Firestore": "Frakt24\\LaravelPHPFirestore\\Facades\\Firestore"
+            }
+        }
     }
 }

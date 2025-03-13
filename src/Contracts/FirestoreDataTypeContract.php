@@ -1,6 +1,6 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Contracts;
+namespace Frakt24\LaravelPHPFirestore\Contracts;
 
 interface FirestoreDataTypeContract
 {

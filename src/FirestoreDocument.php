@@ -1,19 +1,19 @@
 <?php
 
-namespace MrShan0\PHPFirestore;
+namespace Frakt24\LaravelPHPFirestore;
 
 use DateTime;
 use Exception;
-use MrShan0\PHPFirestore\Attributes\FirestoreDeleteAttribute;
-use MrShan0\PHPFirestore\Exceptions\Client\FieldNotFound;
-use MrShan0\PHPFirestore\Exceptions\Client\FieldTypeError;
-use MrShan0\PHPFirestore\Fields\FirestoreArray;
-use MrShan0\PHPFirestore\Fields\FirestoreBytes;
-use MrShan0\PHPFirestore\Fields\FirestoreGeoPoint;
-use MrShan0\PHPFirestore\Fields\FirestoreObject;
-use MrShan0\PHPFirestore\Fields\FirestoreReference;
-use MrShan0\PHPFirestore\Fields\FirestoreTimestamp;
-use MrShan0\PHPFirestore\Helpers\FirestoreHelper;
+use Frakt24\LaravelPHPFirestore\Attributes\FirestoreDeleteAttribute;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\FieldNotFound;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\FieldTypeError;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreArray;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreBytes;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreGeoPoint;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreObject;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreReference;
+use Frakt24\LaravelPHPFirestore\Fields\FirestoreTimestamp;
+use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
 
 class FirestoreDocument {
 

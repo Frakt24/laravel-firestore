@@ -5,7 +5,7 @@
 [![Total Downloads](https://img.shields.io/github/downloads/bensontrent/firestore-php/total?color=green&label=downloads)](https://github.com/bensontrent/firestore-php)
 [![License](https://poser.pugx.org/bensontrent/firestore-php/license?format=flat-square)](https://packagist.org/packages/bensontrent/firestore-php)
 
-
+Frok from [bensontrent/firestore-php](https://github.com/bensontrent/firestore-php)
 
 Use Google Firebase without the requirement of having the gRPC extension for php installed.  This is ideal for shared hosting environments. This package is totally based on [Firestore REST API](https://firebase.google.com/docs/firestore/use-rest-api)
 
@@ -20,14 +20,14 @@ Use Google Firebase without the requirement of having the gRPC extension for php
 You can install the package via composer:
 
 ```bash
-composer require bensontrent/firestore-php
+composer require bensontrent/laravel-firestore-php
 ```
 
 or install it by adding it to `composer.json` then run `composer update`
 
 ```javascript
 "require": {
-    "bensontrent/firestore-php": "^3.0",
+    "bensontrent/laravel-firestore-php": "^3.0",
 }
 ```
 
@@ -384,7 +384,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 If you discover any security related issues, please use the issue tracker.
 
 ## Credits
-
+- [Benson Trent](https://github.com/bensontrent)
 - [Ahsaan Muhammad Yousuf](https://ahsaan.me)
 - [All Contributors](../../contributors)
 

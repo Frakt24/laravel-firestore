@@ -1,10 +1,10 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Fields;
+namespace Frakt24\LaravelPHPFirestore\Fields;
 
-use MrShan0\PHPFirestore\Contracts\FirestoreDataTypeContract;
-use MrShan0\PHPFirestore\FirestoreClient;
-use MrShan0\PHPFirestore\Helpers\FirestoreHelper;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreDataTypeContract;
+use Frakt24\LaravelPHPFirestore\FirestoreClient;
+use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
 
 class FirestoreReference implements FirestoreDataTypeContract
 {

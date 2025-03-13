@@ -1,6 +1,6 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Exceptions;
+namespace Frakt24\LaravelPHPFirestore\Exceptions;
 
 class UnhandledRequestError extends \Exception
 {

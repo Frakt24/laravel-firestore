@@ -1,10 +1,10 @@
 <?php
 
-namespace MrShan0\PHPFirestore\Fields;
+namespace Frakt24\LaravelPHPFirestore\Fields;
 
-use MrShan0\PHPFirestore\Contracts\FirestoreDataTypeContract;
-use MrShan0\PHPFirestore\FirestoreDocument;
-use MrShan0\PHPFirestore\Helpers\FirestoreHelper;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreDataTypeContract;
+use Frakt24\LaravelPHPFirestore\FirestoreDocument;
+use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
 
 class FirestoreObject implements FirestoreDataTypeContract
 {
@@ -31,7 +31,7 @@ class FirestoreObject implements FirestoreDataTypeContract
 
     public function getData()
     {
-        return $this->data;
+        return $this->normalize($this->data);
     }
 
     public function parseValue()
@@ -47,5 +47,39 @@ class FirestoreObject implements FirestoreDataTypeContract
         }
 
         return $payload;
+    }
+
+    public function set($field, $value)
+    {
+        return $this->data[$field] = $value;
+    }
+
+    protected function normalize(array $data)
+    {
+        $normalized = [];
+
+        foreach ($data as $key => $value) {
+            if (is_numeric($key) && is_array($value)) {
+                $hasAssociativeKey = false;
+                foreach ($value as $subKey => $subValue) {
+                    if (!is_numeric($subKey)) {
+                        $hasAssociativeKey = true;
+                        break;
+                    }
+                }
+                if ($hasAssociativeKey) {
+                    $normalized = array_merge($normalized, $this->normalize($value));
+                    continue;
+                }
+            }
+
+            if (is_array($value)) {
+                $normalized[$key] = $this->normalize($value);
+            } else {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
     }
 }
