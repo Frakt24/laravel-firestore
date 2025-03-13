@@ -8,8 +8,6 @@ class FirestoreService
 {
     protected FirestoreClient $client;
 
-    private FirestoreAuthentication $authenticator;
-
     public function __construct(array $config = [])
     {
         $projectId = $config['project_id'] ?? '';
@@ -107,7 +105,7 @@ class FirestoreService
 
     public function authenticator(): FirestoreAuthentication
     {
-        return $this->authenticator;
+        return $this->client->authenticator();
     }
 
 }
