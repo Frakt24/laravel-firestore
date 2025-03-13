@@ -5,7 +5,7 @@
 [![Total Downloads](https://img.shields.io/github/downloads/bensontrent/firestore-php/total?color=green&label=downloads)](https://github.com/bensontrent/firestore-php)
 [![License](https://poser.pugx.org/bensontrent/firestore-php/license?format=flat-square)](https://packagist.org/packages/bensontrent/firestore-php)
 
-Frok from [bensontrent/firestore-php](https://github.com/bensontrent/firestore-php)
+Fork from [bensontrent/firestore-php](https://github.com/bensontrent/firestore-php)
 
 Use Google Firebase without the requirement of having the gRPC extension for php installed.  This is ideal for shared hosting environments. This package is totally based on [Firestore REST API](https://firebase.google.com/docs/firestore/use-rest-api)
 
@@ -324,7 +324,7 @@ $document->get('bytes')->parseValue(); // will return bytes decoded value.
 // Catch field that doesn't exist in document
 try {
     $document->get('allowed_notification');
-} catch (\MrShan0\PHPFirestore\Exceptions\Client\FieldNotFound $e) {
+} catch (\Frakt24\LaravelPHPFirestore\Exceptions\Client\FieldNotFound $e) {
     // Set default value
 }
 ```

@@ -2,17 +2,17 @@
 namespace Frakt24\LaravelPHPFirestore\Authentication;
 
 use Exception;
+use Frakt24\LaravelPHPFirestore\Exceptions\Client\BadRequest;
 use Frakt24\LaravelPHPFirestore\Exceptions\Client\Conflict;
 use Frakt24\LaravelPHPFirestore\Exceptions\Client\Forbidden;
 use Frakt24\LaravelPHPFirestore\Exceptions\Client\NotFound;
 use Frakt24\LaravelPHPFirestore\Exceptions\Client\Unauthorized;
 use Frakt24\LaravelPHPFirestore\Exceptions\Server\InternalServerError;
 use Frakt24\LaravelPHPFirestore\Exceptions\UnhandledRequestError;
+use Frakt24\LaravelPHPFirestore\FirestoreClient;
+use Frakt24\LaravelPHPFirestore\Handlers\RequestErrorHandler;
+use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
 use GuzzleHttp\Exception\BadResponseException;
-use MrShan0\PHPFirestore\Exceptions\Client\BadRequest;
-use MrShan0\PHPFirestore\FirestoreClient;
-use MrShan0\PHPFirestore\Handlers\RequestErrorHandler;
-use MrShan0\PHPFirestore\Helpers\FirestoreHelper;
 
 class FirestoreAuthentication
 {
@@ -21,14 +21,14 @@ class FirestoreAuthentication
      *
      * @var string
      */
-    private $authRoot = 'https://www.googleapis.com/identitytoolkit/v3/relyingparty/';
+    private string $authRoot = 'https://www.googleapis.com/identitytoolkit/v3/relyingparty/';
 
     /**
      * Firestore Client object
      *
-     * @var \Frakt24\LaravelPHPFirestore\FirestoreClient
+     * @var FirestoreClient
      */
-    private $client;
+    private FirestoreClient $client;
 
     public function __construct(FirestoreClient $client)
     {
@@ -42,7 +42,7 @@ class FirestoreAuthentication
      *
      * @return string
      */
-    private function constructUrl($resource)
+    private function constructUrl(string $resource): string
     {
         return $this->authRoot . $resource . '?key=' . $this->client->getApiKey();
     }
@@ -54,7 +54,7 @@ class FirestoreAuthentication
      *
      * @return array
      */
-    public function setCustomToken($token)
+    public function setCustomToken(string $token): array
     {
         return $this->client->setOption('headers', [
             'Authorization' => 'Bearer ' . $token,
@@ -66,7 +66,7 @@ class FirestoreAuthentication
      *
      * @return null|string
      */
-    public function getAuthToken()
+    public function getAuthToken(): ?string
     {
         $authHeader = $this->client->getOption('headers');
 
@@ -86,7 +86,7 @@ class FirestoreAuthentication
      *
      * @return object
      */
-    public function signInEmailPassword($email, $password, $setToken = true)
+    public function signInEmailPassword(string $email, string $password, bool $setToken = true): object
     {
         $response = $this->authRequest('POST', 'verifyPassword', [
             'form_params' => [
@@ -114,7 +114,7 @@ class FirestoreAuthentication
      *
      * @return object
      */
-    public function signInAnonymously($setToken = true)
+    public function signInAnonymously(bool $setToken = true): object
     {
         $response = $this->authRequest('POST', 'signupNewUser', [
             'form_params' => [
@@ -142,7 +142,7 @@ class FirestoreAuthentication
      *
      * @return object
      */
-    private function authRequest($method, $resource, array $options = [])
+    private function authRequest(string $method, string $resource, array $options = []): object
     {
         try {
             $options = array_merge($this->client->getOptions(), $options);
@@ -168,7 +168,7 @@ class FirestoreAuthentication
      *
      * @param BadResponseException $exception
      *
-     * @throws \Frakt24\LaravelPHPFirestore\Exceptions\Client\BadRequest
+     * @throws BadRequest
      * @throws Unauthorized
      * @throws Forbidden
      * @throws NotFound
@@ -176,7 +176,7 @@ class FirestoreAuthentication
      * @throws InternalServerError
      * @throws UnhandledRequestError
      */
-    private function handleError(Exception $exception)
+    private function handleError(Exception $exception): void
     {
         $handler = new RequestErrorHandler($exception);
         $handler->handleError();
