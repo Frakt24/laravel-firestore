@@ -221,7 +221,7 @@ class FirestoreClient
      *
      * @return mixed
      */
-    public function setOption($key, $value)
+    public function setOption($key, $value): mixed
     {
         return $this->options[$key] = $value;
     }
@@ -240,7 +240,7 @@ class FirestoreClient
      * @return bool|mixed
      * @return void
      */
-    public function getOption($key)
+    public function getOption($key): mixed
     {
         if (isset($this->options[$key])) {
             return $this->options[$key];
@@ -254,7 +254,7 @@ class FirestoreClient
      *
      * @return string
      */
-    private function constructUrl($method, $params=null)
+    private function constructUrl($method, $params=null): string
     {
         $params     = is_array($params) ? $params : [];
         $builtQuery = (count($params) ? '&' . http_build_query($params) : '');
@@ -271,7 +271,7 @@ class FirestoreClient
     /**
      * @return FirestoreAuthentication
      */
-    public function getFirestoreAuth()
+    public function getFirestoreAuth(): FirestoreAuthentication
     {
         if ($this->authenticator) {
             return $this->authenticator;
@@ -283,7 +283,7 @@ class FirestoreClient
     }
 
     /**
-     * @return \Frakt24\LaravelPHPFirestore\Query\FirestoreQuery
+     * @return FirestoreQuery
      */
     public function getFirestoreQuery()
     {

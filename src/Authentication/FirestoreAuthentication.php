@@ -140,9 +140,9 @@ class FirestoreAuthentication
      * @param string $resource
      * @param array $options
      *
-     * @return object
+     * @return object|array
      */
-    private function authRequest(string $method, string $resource, array $options = []): object
+    private function authRequest(string $method, string $resource, array $options = []): object|array
     {
         try {
             $options = array_merge($this->client->getOptions(), $options);
