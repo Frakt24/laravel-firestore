@@ -154,24 +154,39 @@ class FirestoreDatabaseResource
     {
         $this->validatePath($collection, false);
 
-        if ( !($payload instanceof FirestoreDocument) ) {
+        if (!($payload instanceof FirestoreDocument)) {
             $document = new FirestoreDocument();
+            if (is_array($payload)) {
+                $document->fillValues($payload);
+            }
         } else {
             $document = $payload;
         }
 
-        // Set custom Document id
-        if ( $documentId ) {
+        if ($documentId) {
             $parameters['documentId'] = $documentId;
         }
 
-        if ( is_array($payload) ) {
-            $document->fillValues($payload);
+        $jsonBody = $document->toJson();
+
+        if (empty($jsonBody) || $jsonBody === 'null') {
+            error_log("toJson() produced empty or null JSON. Document fields: " . print_r($document->toArray(), true));
+            throw new \RuntimeException("toJson() produced invalid or empty JSON.");
         }
 
-        $response = $this->client->request('POST', 'documents/' . FirestoreHelper::normalizeCollection($collection), array_merge($options, [
-            'json' => FirestoreHelper::decode($document->toJson())
-        ]), $parameters);
+        $requestOptions = array_merge($options, [
+            'body' => $jsonBody,
+        ]);
+
+        unset($requestOptions['json']);
+
+
+        $response = $this->client->request(
+            'POST',
+            'documents/' . FirestoreHelper::normalizeCollection($collection),
+            $requestOptions,
+            $parameters
+        );
 
         return new FirestoreDocument($response);
     }
