@@ -1,12 +1,16 @@
 <?php
 
-namespace Frakt24\LaravelPHPFirestore;
+namespace Frakt24\LaravelPHPFirestore\Core;
 
-class FirestoreBatch
+use Frakt24\LaravelPHPFirestore\Contracts\BatchOperations;
+use Frakt24\LaravelPHPFirestore\FirestoreClient;
+use RuntimeException;
+
+class Batch implements BatchOperations
 {
-    private $client;
-    private $operations = [];
-    private $maxBatchSize = 500; // Firestore limit
+    private FirestoreClient $client;
+    private array $operations = [];
+    private int $maxBatchSize = 500; // Firestore limit
 
     public function __construct(FirestoreClient $client)
     {
@@ -21,12 +25,12 @@ class FirestoreBatch
      * @param array $data Document data (for create/update)
      * @param array $options Additional options
      * @return self
-     * @throws \RuntimeException If batch size would exceed limit
+     * @throws RuntimeException If batch size would exceed limit
      */
     public function add(string $operation, string $documentPath, array $data = [], array $options = []): self
     {
         if (count($this->operations) >= $this->maxBatchSize) {
-            throw new \RuntimeException("Batch size cannot exceed {$this->maxBatchSize} operations");
+            throw new RuntimeException("Batch size cannot exceed {$this->maxBatchSize} operations");
         }
 
         $this->operations[] = [

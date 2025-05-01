@@ -1,0 +1,33 @@
+<?php
+
+namespace {{ namespace }};
+
+use Frakt24\LaravelPHPFirestore\Models\FirestoreModel;
+
+class {{ class }} extends FirestoreModel
+{
+    /**
+     * The Firestore collection associated with the model.
+     *
+     * @var string
+     */
+    protected string $collection = '{{ collection }}';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
+    protected array $fillable = [
+        //
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected array $casts = [
+        //
+    ];
+}
