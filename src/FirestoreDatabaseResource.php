@@ -6,6 +6,7 @@ use Frakt24\LaravelPHPFirestore\Exceptions\Client\NotFound;
 use Frakt24\LaravelPHPFirestore\FirestoreDocument;
 use Frakt24\LaravelPHPFirestore\FirestoreClient;
 use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
+use Frakt24\LaravelPHPFirestore\FirestoreCollection;
 
 class FirestoreDatabaseResource
 {
@@ -50,29 +51,112 @@ class FirestoreDatabaseResource
     /**
      * List all documents in collection path given
      *
-     * @param string $collection
-     * @param array $parameters
-     * @param array $options
-     *
-     * @return array
+     * @param string $collectionPath
+     * @param array $options Additional options including:
+     *                      - pageSize: The maximum number of documents to return
+     *                      - pageToken: The token for the next page
+     *                      - orderBy: The order to sort results by
+     *                      - mask: The fields to return in the response
+     *                      - readTime: Read state at this time (RFC 3339 format)
+     * @return FirestoreCollection
+     * @throws InvalidPathProvided
      */
-    public function listDocuments($collection, array $parameters = [], array $options = [])
+    public function listDocuments(string $collectionPath, array $options = []): FirestoreCollection
     {
-        $this->validatePath($collection, false);
+        $this->validatePath($collectionPath, false);
 
-        $response = $this->client->request('GET', 'documents/' . FirestoreHelper::normalizeCollection($collection), $options, $parameters);
+        $response = $this->client->request('GET', $collectionPath, [
+            'query' => array_filter([
+                'pageSize' => $options['pageSize'] ?? null,
+                'pageToken' => $options['pageToken'] ?? null,
+                'orderBy' => $options['orderBy'] ?? null,
+                'mask.fieldPaths' => $options['mask'] ?? null,
+                'readTime' => $options['readTime'] ?? null
+            ])
+        ]);
 
-        if (isset($response['documents'])) {
-            $documents = array_map(function($doc) {
-                return new FirestoreDocument($doc);
-            }, $response['documents']);
-        } else {
-            $documents = [];
+        return new FirestoreCollection($response, $collectionPath, $this);
+    }
+
+    /**
+     * List all collections under a path
+     *
+     * @param string|null $parentPath Optional parent document path
+     * @param array $options Additional options including:
+     *                      - pageSize: The maximum number of results to return
+     *                      - pageToken: Token from a previous request for pagination
+     *                      - readTime: Reads collections as they were at the given time
+     * @return array ['collectionIds' => string[], 'nextPageToken' => string|null]
+     */
+    public function listCollections(?string $parentPath = null, array $options = []): array
+    {
+        if ($parentPath !== null) {
+            $this->validatePath($parentPath, true);
         }
 
-        return array_merge($response, [
-            'documents' => $documents,
-        ]);
+        $path = $parentPath 
+            ? "{$parentPath}:listCollectionIds"
+            : "projects/{$this->client->getConfig('projectId')}/databases/(default)/documents:listCollectionIds";
+
+        $response = $this->client->request('POST', $path, ['json' => $options]);
+
+        return [
+            'collectionIds' => $response['collectionIds'] ?? [],
+            'nextPageToken' => $response['nextPageToken'] ?? null
+        ];
+    }
+
+    /**
+     * Get metadata about a collection
+     *
+     * @param string $collectionPath
+     * @param array $options
+     * @return array
+     * @throws InvalidPathProvided
+     */
+    public function getCollectionMetadata(string $collectionPath, array $options = []): array
+    {
+        $this->validatePath($collectionPath, false);
+
+        // First check if collection exists with minimal query
+        $collection = $this->listDocuments($collectionPath, ['pageSize' => 1]);
+        
+        if ($collection->count() === 0) {
+            return [
+                'path' => $collectionPath,
+                'exists' => false,
+                'documentCount' => 0,
+                'hasMore' => false
+            ];
+        }
+
+        // If collection exists, get full count up to pageSize
+        $pageSize = $options['pageSize'] ?? 1000;
+        $collection = $this->listDocuments($collectionPath, ['pageSize' => $pageSize]);
+        
+        return [
+            'path' => $collectionPath,
+            'exists' => true,
+            'documentCount' => $collection->count(),
+            'hasMore' => $collection->hasMore(),
+            'nextPageToken' => $collection->getNextPageToken(),
+            'readTime' => $collection->getReadTime()
+        ];
+    }
+
+    /**
+     * Check if a collection exists
+     *
+     * @param string $collectionPath
+     * @param array $options
+     * @return bool
+     * @throws InvalidPathProvided
+     */
+    public function collectionExists(string $collectionPath, array $options = []): bool
+    {
+        $this->validatePath($collectionPath, false);
+        $collection = $this->listDocuments($collectionPath, array_merge(['pageSize' => 1], $options));
+        return $collection->count() > 0;
     }
 
     /**
