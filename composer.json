@@ -59,10 +59,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Frakt24\\LaravelPHPFirestore\\FirestoreServiceProvider"
+                "Frakt24\\LaravelPHPFirestore\\Support\\ServiceProvider"
             ],
             "aliases": {
-                "Firestore": "Frakt24\\LaravelPHPFirestore\\Facades\\Firestore"
+                "Firestore": "Frakt24\\LaravelPHPFirestore\\Support\\Facades\\Firestore"
             }
         }
     }
