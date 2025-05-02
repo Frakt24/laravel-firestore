@@ -3,7 +3,7 @@
 namespace Frakt24\LaravelPHPFirestore\Support;
 
 use Frakt24\LaravelPHPFirestore\Auth\FirestoreCredentials;
-use Frakt24\LaravelPHPFirestore\Core\FirestoreService;
+use Frakt24\LaravelPHPFirestore\Core\Service;
 use Frakt24\LaravelPHPFirestore\Models\Events\ModelCreating;
 use Frakt24\LaravelPHPFirestore\Models\Events\ModelUpdating;
 use Frakt24\LaravelPHPFirestore\Models\FirestoreModel;
@@ -20,7 +20,7 @@ class ServiceProvider extends BaseServiceProvider
             'firestore'
         );
 
-        $this->app->singleton(FirestoreService::class, function ($app) {
+        $this->app->singleton(Service::class, function ($app) {
             $config = $app['config']['firestore'];
 
             $credentials = new FirestoreCredentials([
@@ -37,7 +37,7 @@ class ServiceProvider extends BaseServiceProvider
                 'client_x509_cert_url' => $config['client_x509_cert_url']
             ]);
 
-            return new FirestoreService($credentials, [
+            return new Service($credentials, [
                 'database' => $config['database'] ?? '(default)',
                 'retry' => $config['retry'] ?? true,
                 'timeout' => $config['timeout'] ?? 10,
@@ -48,7 +48,7 @@ class ServiceProvider extends BaseServiceProvider
 
         // Register the facade
         $this->app->bind('firestore', function($app) {
-            return $app->make(FirestoreService::class);
+            return $app->make(Service::class);
         });
     }
 
@@ -139,7 +139,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         return [
             'firestore',
-            FirestoreService::class,
+            Service::class,
         ];
     }
 }

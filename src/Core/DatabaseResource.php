@@ -1,17 +1,19 @@
 <?php
 namespace Frakt24\LaravelPHPFirestore\Core;
 
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreDocument;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreCollection;
+use Frakt24\LaravelPHPFirestore\Core\Document;
+use Frakt24\LaravelPHPFirestore\Core\Collection;
 use Frakt24\LaravelPHPFirestore\Exceptions\Client\InvalidPathProvided;
 use Frakt24\LaravelPHPFirestore\Exceptions\Client\NotFound;
-use Frakt24\LaravelPHPFirestore\FirestoreDocument;
-use Frakt24\LaravelPHPFirestore\FirestoreClient;
 use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
-use Frakt24\LaravelPHPFirestore\FirestoreCollection;
+use Frakt24\LaravelPHPFirestore\Core\Client;
 
-class FirestoreDatabaseResource
+class DatabaseResource
 {
     /**
-     * @var \Frakt24\LaravelPHPFirestore\FirestoreClient
+     * @var \Frakt24\LaravelPHPFirestore\Core\Client
      */
     private $client;
 
@@ -20,8 +22,10 @@ class FirestoreDatabaseResource
      */
     private $options = [];
 
-    public function __construct(FirestoreClient $client) {
+    public function __construct(Client $client, array $options = [])
+    {
         $this->client = $client;
+        $this->options = $options;
     }
 
     /**
@@ -75,7 +79,7 @@ class FirestoreDatabaseResource
             ])
         ]);
 
-        return new FirestoreCollection($response, $collectionPath, $this);
+        return new Collection($response, $collectionPath, $this);
     }
 
     /**
@@ -166,7 +170,7 @@ class FirestoreDatabaseResource
      * @param array $parameters
      * @param array $options
      *
-     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
+     * @return FirestoreDocument
      */
     public function getDocument($documentPath, array $parameters = [], array $options = [])
     {
@@ -175,8 +179,8 @@ class FirestoreDatabaseResource
         $documentPath = 'documents/' . FirestoreHelper::normalizeCollection($documentPath);
         $document     = $this->client->request('GET', $documentPath, $options, $parameters);
 
-        if ( FirestoreDocument::isValidDocument($document) ) {
-            return new FirestoreDocument($document, $this);
+        if ( Document::isValidDocument($document) ) {
+            return new Document($document, $this);
         }
 
         throw new NotFound((string) $this->client->getLastResponse()->getBody());
@@ -214,7 +218,7 @@ class FirestoreDatabaseResource
 
         foreach ($response as $doc) {
             if (array_key_exists('found', $doc)) {
-                $results['documents'][] = new FirestoreDocument($doc['found']);
+                $results['documents'][] = new Document($doc['found']);
             } else {
                 $results['missing'][] = substr($doc['missing'], $documentBasePathLength);
             }
@@ -227,19 +231,19 @@ class FirestoreDatabaseResource
      * Insert document under collection path given
      *
      * @param string $collection
-     * @param array|FirestoreDocument $payload
+     * @param array|Document $payload
      * @param string|null $documentId
      * @param array $parameters
      * @param array $options
      *
-     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
+     * @return FirestoreDocument
      */
     public function addDocument($collection, $payload, $documentId = null, array $parameters = [], array $options = [])
     {
         $this->validatePath($collection, false);
 
-        if (!($payload instanceof FirestoreDocument)) {
-            $document = new FirestoreDocument();
+        if (!($payload instanceof Document)) {
+            $document = new Document();
             if (is_array($payload)) {
                 $document->fillValues($payload);
             }
@@ -272,7 +276,7 @@ class FirestoreDatabaseResource
             $parameters
         );
 
-        return new FirestoreDocument($response);
+        return new Document($response);
     }
 
     /**
@@ -281,14 +285,14 @@ class FirestoreDatabaseResource
      *
      *
      * @param string $documentPath
-     * @param array|FirestoreDocument $payload
+     * @param array|Document $payload
      * @param string|null $documentId
      * @param array $parameters
      * @param array $options
      *
-     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
+     * @return FirestoreDocument
      */
-    public function addNestedDocuments($documentPath, $payload, $documentId = null, array $parameters = [], array $options = []): \Frakt24\LaravelPHPFirestore\FirestoreDocument
+    public function addNestedDocuments($documentPath, $payload, $documentId = null, array $parameters = [], array $options = []): FirestoreDocument
     {
         $payload = FirestoreHelper::normalizedNestedArray($payload);
         return $this->addDocument($documentPath, $payload, $documentId , $parameters,$options);
@@ -299,12 +303,12 @@ class FirestoreDatabaseResource
      * data and don't want to affect existing parameters, use this.
      *
      * @param string $documentPath
-     * @param array|FirestoreDocument $payload
+     * @param array|Document $payload
      * @param boolean $documentExists
      * @param array $parameters
      * @param array $options
      *
-     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
+     * @return FirestoreDocument
      */
     public function updateDocument($documentPath, $payload, $documentExists = null, array $parameters = [], array $options = [])
     {
@@ -317,22 +321,22 @@ class FirestoreDatabaseResource
      * To overwrite/insret your document into firestore.
      *
      * @param string $documentPath
-     * @param array|FirestoreDocument $payload
+     * @param array|Document $payload
      * @param boolean $documentExists
      * @param array $parameters
      * @param array $options
      *
-     * @return \Frakt24\LaravelPHPFirestore\FirestoreDocument
+     * @return FirestoreDocument
      */
     public function setDocument($documentPath, $payload, $documentExists = null, array $parameters = [], array $options = [])
     {
 
         $this->validatePath($documentPath);
 
-        if ($payload instanceof FirestoreDocument) {
+        if ($payload instanceof Document) {
             $document = $payload;
         } elseif ( is_array($payload) ) {
-            $document = (new FirestoreDocument)->fillValues($payload);
+            $document = (new Document)->fillValues($payload);
         }
 
         if ($documentExists !== null) {
@@ -347,7 +351,7 @@ class FirestoreDatabaseResource
             'json' => FirestoreHelper::decode($document->toJson())
         ]), $parameters);
 
-        return new FirestoreDocument($response);
+        return new Document($response);
     }
 
     /**
@@ -360,7 +364,7 @@ class FirestoreDatabaseResource
      */
     public function deleteDocument($document, array $options = [])
     {
-        if ($document instanceof FirestoreDocument) {
+        if ($document instanceof Document) {
             $document = FirestoreHelper::normalizeCollection($document->getRelativeName());
         }
 

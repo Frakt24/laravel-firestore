@@ -2,7 +2,7 @@
 
 namespace Frakt24\LaravelPHPFirestore\Core;
 
-class FirestoreDatabase
+class Database
 {
     /**
      * @var FirestoreClient

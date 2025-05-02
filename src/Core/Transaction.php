@@ -2,7 +2,7 @@
 
 namespace Frakt24\LaravelPHPFirestore\Core;
 
-class FirestoreTransaction
+class Transaction
 {
     private $client;
     private $transactionId;

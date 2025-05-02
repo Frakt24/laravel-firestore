@@ -3,7 +3,8 @@
 namespace Frakt24\LaravelPHPFirestore\Models;
 
 use Frakt24\LaravelPHPFirestore\Contracts\FirestoreCollection;
-use Frakt24\LaravelPHPFirestore\FirestoreService;
+use Frakt24\LaravelPHPFirestore\Core\Client;
+use Frakt24\LaravelPHPFirestore\Core\Service;
 use Frakt24\LaravelPHPFirestore\Traits\HasFirestoreAttributes;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Facades\App;
@@ -21,7 +22,7 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
     protected array $guarded = [];
     protected array $hidden = [];
     protected array $casts = [];
-    protected array $dates = ['createdAt', 'updatedAt'];
+    protected array $dates = ['createdAt', 'updatedAt', 'deletedAt'];
     protected bool $timestamps = true;
     protected string $dateFormat = 'Y-m-d H:i:s';
     protected bool $exists = false;
@@ -34,9 +35,64 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
         'deleted_at' => 'deletedAt',
     ];
 
+    protected ?Client $client = null;
+
     public function __construct(array $attributes = [])
     {
         $this->fill($attributes);
+    }
+
+    /**
+     * Get the model's ID
+     */
+    public function getId(): ?string
+    {
+        return $this->getAttribute('id') ?? $this->id;
+    }
+
+    /**
+     * Set the model's ID
+     */
+    public function setId(?string $id): void
+    {
+        $this->id = $id;
+        $this->setAttribute('id', $id);
+    }
+
+    /**
+     * Set whether the model exists in Firestore
+     */
+    public function setExists(bool $exists): void
+    {
+        $this->exists = $exists;
+    }
+
+    /**
+     * Get whether the model exists in Firestore
+     */
+    public function getExists(): bool
+    {
+        return $this->exists;
+    }
+
+    /**
+     * Set the Firestore client
+     */
+    public function setClient(Client $client): self
+    {
+        $this->client = $client;
+        return $this;
+    }
+
+    /**
+     * Get the Firestore client
+     */
+    public function getClient(): Client
+    {
+        if (!$this->client) {
+            $this->client = app(Client::class);
+        }
+        return $this->client;
     }
 
     /**
@@ -44,7 +100,7 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
      */
     public function getCollection(): FirestoreCollection
     {
-        return App::make(FirestoreService::class)->collection($this->collection);
+        return $this->getClient()->collection($this->collection);
     }
 
     /**
@@ -57,7 +113,6 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
                 $this->setAttribute($key, $value);
             }
         }
-
         return $this;
     }
 
@@ -66,19 +121,36 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
      */
     public function save(): bool
     {
-        if ($this->timestamps) {
-            $this->addTimestamps();
-        }
+        try {
+            if ($this->timestamps) {
+                $now = Carbon::now()->format($this->dateFormat);
+                if (!$this->getExists()) {
+                    $this->setAttribute('createdAt', $now);
+                }
+                $this->setAttribute('updatedAt', $now);
+            }
 
-        if ($this->exists) {
-            $this->getCollection()->update($this->id, $this->getAttributes());
-        } else {
-            $document = $this->getCollection()->add($this->getAttributes(), $this->id);
-            $this->id = $document->id();
-            $this->exists = true;
-        }
+            $attributes = $this->getAttributes();
 
-        return true;
+            if ($this->getExists()) {
+                if (!$this->getId()) {
+                    return false;
+                }
+                $document = $this->getCollection()->document($this->getId());
+                return $document->update($attributes);
+            }
+
+            $document = $this->getCollection()->add($attributes, null);
+            if ($document && method_exists($document, 'getId')) {
+                $this->setId($document->getId());
+                $this->setExists(true);
+                return true;
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -86,28 +158,26 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
      */
     public function delete(): bool
     {
-        if (!$this->exists) {
+        try {
+            if (!$this->getExists() || !$this->getId()) {
+                return false;
+            }
+
+            $document = $this->getCollection()->document($this->getId());
+
+            if (static::$globalSoftDeletes) {
+                $now = Carbon::now()->format($this->dateFormat);
+                $this->setAttribute('deletedAt', $now);
+                if ($this->timestamps) {
+                    $this->setAttribute('updatedAt', $now);
+                }
+                return $document->update($this->getAttributes());
+            }
+
+            return $document->delete();
+        } catch (\Exception $e) {
             return false;
         }
-
-        return $this->getCollection()->delete($this->id);
-    }
-
-    /**
-     * Get the model's ID
-     */
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set the model's ID
-     */
-    public function setId(string $id): self
-    {
-        $this->id = $id;
-        return $this;
     }
 
     /**
@@ -116,50 +186,84 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
     public function toArray(): array
     {
         $attributes = $this->getAttributes();
-
         foreach ($this->hidden as $key) {
             unset($attributes[$key]);
         }
-
-        if ($this->id) {
-            $attributes['id'] = $this->id;
-        }
-
         return $attributes;
     }
 
     /**
-     * Find a model by its ID
+     * Convert the model to JSON
      */
-    public static function find(string $id): ?static
+    public function jsonSerialize(): array
     {
-        try {
-            $document = (new static)->getCollection()->document($id);
-            $model = new static($document->data());
-            $model->setId($id);
-            $model->exists = true;
-            return $model;
-        } catch (\Exception $e) {
-            return null;
-        }
-    }
-
-    /**
-     * Create a new query for this model
-     */
-    public static function query(): FirestoreModelQuery
-    {
-        return new FirestoreModelQuery(new static);
+        return $this->toArray();
     }
 
     /**
      * Create a new model instance
      */
-    public static function create(array $attributes): static
+    public static function create(array $attributes): self
     {
         $model = new static($attributes);
         $model->save();
         return $model;
+    }
+
+    /**
+     * Set whether to use timestamps globally
+     */
+    public static function setGlobalTimestamps(bool $value): void
+    {
+        static::$globalTimestamps = $value;
+    }
+
+    /**
+     * Set whether to use soft deletes globally
+     */
+    public static function setGlobalSoftDeletes(bool $value): void
+    {
+        static::$globalSoftDeletes = $value;
+    }
+
+    /**
+     * Set the global date format
+     */
+    public static function setGlobalDateFormat(string $format): void
+    {
+        static::$globalDateFormat = $format;
+    }
+
+    /**
+     * Set the global date columns
+     */
+    public static function setGlobalDateColumns(array $columns): void
+    {
+        static::$globalDateColumns = $columns;
+    }
+
+    /**
+     * Get a model by its ID
+     */
+    public static function find(string $id): ?self
+    {
+        $model = new static();
+        $document = $model->getCollection()->document($id);
+        if (!$document) {
+            return null;
+        }
+        $model->fill($document->data());
+        $model->setId($id);
+        $model->setExists(true);
+        return $model;
+    }
+
+    /**
+     * Create a new query for this model
+     */
+    public function query()
+    {
+        return $this->getCollection()->query();
     }
 
     /**
@@ -192,45 +296,54 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
      */
     public function __isset(string $key): bool
     {
-        return isset($this->attributes[$key]);
-    }
-
-    /**
-     * Convert the model to JSON serializable data
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->toArray();
+        return $this->getAttribute($key) !== null;
     }
 
     /**
      * Get all models from the collection
      */
-    public static function all(): Collection
+    public static function all(): array
     {
-        return static::query()->get();
+        $model = new static();
+        $documents = $model->getCollection()->list()->getDocuments();
+        $models = [];
+        foreach ($documents as $document) {
+            $model = new static($document->data());
+            $model->setId($document->id());
+            $model->setExists(true);
+            $models[] = $model;
+        }
+        return $models;
     }
 
     /**
      * Get or create a model
      */
-    public static function firstOrCreate(array $attributes, array $values = []): static
+    public static function firstOrCreate(array $attributes, array $values = []): self
     {
-        if (!is_null($instance = static::query()->where($attributes)->first())) {
-            return $instance;
+        $model = new static();
+        $query = $model->query();
+        foreach ($attributes as $key => $value) {
+            $query->where($key, '==', $value);
         }
-
+        $documents = $query->limit(1)->get()->getDocuments();
+        if (count($documents) > 0) {
+            $model->fill($documents[0]->data());
+            $model->setId($documents[0]->id());
+            $model->setExists(true);
+            return $model;
+        }
         return static::create(array_merge($attributes, $values));
     }
 
     /**
      * Create or update a model
      */
-    public static function updateOrCreate(array $attributes, array $values = []): static
+    public static function updateOrCreate(array $attributes, array $values = []): self
     {
-        $instance = static::firstOrCreate($attributes);
-        $instance->fill($values)->save();
-        return $instance;
+        $model = static::firstOrCreate($attributes);
+        $model->update($values);
+        return $model;
     }
 
     /**
@@ -238,36 +351,30 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
      */
     public function refresh(): self
     {
-        if (!$this->exists) {
-            return $this;
+        if ($this->getExists()) {
+            $document = $this->getCollection()->document($this->getId());
+            if ($document) {
+                $this->fill($document->data());
+            }
         }
-
-        $fresh = static::find($this->id);
-        
-        if (!$fresh) {
-            return $this;
-        }
-
-        $this->fill($fresh->getAttributes());
         return $this;
     }
 
     /**
      * Get a fresh instance of the model from Firestore
      */
-    public function fresh(): ?static
+    public function fresh(): ?self
     {
-        if (!$this->exists) {
-            return null;
+        if ($this->getExists()) {
+            return static::find($this->getId());
         }
-
-        return static::find($this->id);
+        return null;
     }
 
     /**
      * Clone the model into a new instance
      */
-    public function replicate(array $except = []): static
+    public function replicate(array $except = []): self
     {
         $attributes = Arr::except($this->getAttributes(), $except);
         return new static($attributes);
@@ -278,7 +385,11 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
      */
     public function getAttributes(): array
     {
-        return $this->attributes;
+        $attributes = [];
+        foreach ($this->attributes as $key => $value) {
+            $attributes[$key] = $this->castAttribute($key, $value);
+        }
+        return $attributes;
     }
 
     /**
@@ -286,16 +397,6 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
      */
     public function setAttribute(string $key, $value): void
     {
-        // Handle date casting
-        if (in_array($key, $this->dates)) {
-            $value = $this->asDateTime($value);
-        }
-
-        // Handle custom casts
-        if (isset($this->casts[$key])) {
-            $value = $this->castAttribute($key, $value);
-        }
-
         $this->attributes[$key] = $value;
     }
 
@@ -304,32 +405,10 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
      */
     protected function castAttribute(string $key, $value)
     {
-        if (is_null($value)) {
-            return $value;
+        if (in_array($key, $this->dates)) {
+            return $this->asDateTime($value);
         }
-
-        switch ($this->casts[$key]) {
-            case 'int':
-            case 'integer':
-                return (int) $value;
-            case 'real':
-            case 'float':
-            case 'double':
-                return (float) $value;
-            case 'string':
-                return (string) $value;
-            case 'bool':
-            case 'boolean':
-                return (bool) $value;
-            case 'array':
-                return (array) $value;
-            case 'object':
-                return (object) $value;
-            case 'collection':
-                return collect($value);
-            default:
-                return $value;
-        }
+        return $value;
     }
 
     /**
@@ -337,51 +416,22 @@ abstract class FirestoreModel implements Arrayable, JsonSerializable
      */
     protected function asDateTime($value)
     {
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof Carbon) {
             return $value;
         }
+        return Carbon::parse($value);
+    }
 
-        if (is_numeric($value)) {
-            return Carbon::createFromTimestamp($value);
+    /**
+     * Add timestamps to the model
+     */
+    protected function addTimestamps(): void
+    {
+        $now = Carbon::now()->format($this->dateFormat);
+        if (!$this->getExists()) {
+            $this->setAttribute('createdAt', $now);
         }
-
-        if (is_string($value)) {
-            return Carbon::parse($value);
-        }
-
-        return $value;
-    }
-
-    /**
-     * Set the global timestamps setting.
-     */
-    public static function setGlobalTimestamps(bool $value): void
-    {
-        static::$globalTimestamps = $value;
-    }
-
-    /**
-     * Set the global soft deletes setting.
-     */
-    public static function setGlobalSoftDeletes(bool $value): void
-    {
-        static::$globalSoftDeletes = $value;
-    }
-
-    /**
-     * Set the global date format.
-     */
-    public static function setGlobalDateFormat(string $format): void
-    {
-        static::$globalDateFormat = $format;
-    }
-
-    /**
-     * Set the global date columns.
-     */
-    public static function setGlobalDateColumns(array $columns): void
-    {
-        static::$globalDateColumns = $columns;
+        $this->setAttribute('updatedAt', $now);
     }
 
     /**

@@ -9,6 +9,7 @@ use Guzzle\Http\Message\Response;
 use Frakt24\LaravelPHPFirestore\Auth\FirestoreCredentials;
 use Frakt24\LaravelPHPFirestore\Handlers\RequestErrorHandler;
 use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
+use Frakt24\LaravelPHPFirestore\Core\DatabaseResource;
 
 /**
  * @method array listDocuments($collection, array $parameters = [], array $options = [])
@@ -20,7 +21,7 @@ use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
  * @method FirestoreDocument setDocument($documentPath, $payload, $documentExists = null, array $parameters = [], array $options = [])
  * @method boolean deleteDocument($document, array $options = [])
  */
-class FirestoreClient
+class Client
 {
     /**
      * Firestore REST API Base URL
@@ -306,7 +307,7 @@ class FirestoreClient
      */
     private function api($name, $args)
     {
-        $firestoreInstance = new FirestoreDatabaseResource($this);
+        $firestoreInstance = new DatabaseResource($this);
 
         return call_user_func_array([$firestoreInstance, $name], $args);
     }

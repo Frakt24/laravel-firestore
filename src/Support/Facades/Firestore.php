@@ -1,6 +1,6 @@
 <?php
 
-namespace Frakt24\LaravelPHPFirestore\Facades;
+namespace Frakt24\LaravelPHPFirestore\Support\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

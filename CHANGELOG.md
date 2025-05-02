@@ -30,6 +30,10 @@ All notable changes to `laravel-firestore` will be documented in this file.
   - Model defaults
   - Cache settings
 - Artisan command for model generation
+- Comprehensive test coverage for model operations
+- New test helpers in InteractsWithFirestore trait
+- Better error handling in model operations
+- Documentation for testing
 
 ### Changed
 - Forked from bensontrent/firestore-php
@@ -42,3 +46,10 @@ All notable changes to `laravel-firestore` will be documented in this file.
 - Direct REST API methods in favor of model layer
 - Legacy authentication handling
 - Non-Laravel specific features
+
+### Fixed
+- Fixed FirestoreModel save and delete operations
+- Improved handling of document IDs and exists state
+- Updated test suite with proper mock expectations
+- Added proper getters/setters for model properties
+- Fixed issues with updating existing documents

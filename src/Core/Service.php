@@ -4,7 +4,7 @@ namespace Frakt24\LaravelPHPFirestore\Core;
 
 use Frakt24\LaravelPHPFirestore\Auth\FirestoreCredentials;
 
-class FirestoreService
+class Service
 {
     protected FirestoreClient $client;
 

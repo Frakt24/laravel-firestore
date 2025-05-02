@@ -3,17 +3,17 @@
 namespace Frakt24\LaravelPHPFirestore\Batch;
 
 use Frakt24\LaravelPHPFirestore\Contracts\FirestoreBatch;
-use Frakt24\LaravelPHPFirestore\FirestoreService;
+use Frakt24\LaravelPHPFirestore\Core\Service;
 use Frakt24\LaravelPHPFirestore\Exceptions\Batch\BatchSizeExceededException;
 
 class FirestoreBatchImpl implements FirestoreBatch
 {
-    private FirestoreService $service;
+    private Service $service;
     private string $basePath;
     private array $operations = [];
     private const MAX_BATCH_SIZE = 500;
 
-    public function __construct(FirestoreService $service, string $basePath)
+    public function __construct(Service $service, string $basePath)
     {
         $this->service = $service;
         $this->basePath = $basePath;

@@ -2,7 +2,7 @@
 
 namespace Frakt24\LaravelPHPFirestore\Contracts;
 
-use Frakt24\LaravelPHPFirestore\FirestoreDocument;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreDocument;
 
 interface FirestoreBatch
 {

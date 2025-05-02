@@ -5,6 +5,8 @@ namespace Frakt24\LaravelPHPFirestore\Core;
 use DateTime;
 use Exception;
 use Frakt24\LaravelPHPFirestore\Attributes\FirestoreDeleteAttribute;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreCollection as FirestoreCollectionContract;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreDocument;
 use Frakt24\LaravelPHPFirestore\Exceptions\Client\FieldNotFound;
 use Frakt24\LaravelPHPFirestore\Exceptions\Client\FieldTypeError;
 use Frakt24\LaravelPHPFirestore\Fields\FirestoreArray;
@@ -15,7 +17,7 @@ use Frakt24\LaravelPHPFirestore\Fields\FirestoreReference;
 use Frakt24\LaravelPHPFirestore\Fields\FirestoreTimestamp;
 use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
 
-class FirestoreDocument {
+class Document implements FirestoreDocument {
 
     private $fields           = [];
     private $name             = null;
@@ -516,4 +518,85 @@ class FirestoreDocument {
         return $parsedValue;
     }
 
+    /**
+     * Get the document ID
+     */
+    public function getId(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * Get the document path
+     */
+    public function path(): string
+    {
+        return $this->getAbsoluteName();
+    }
+
+    /**
+     * Get the document data
+     */
+    public function data(): array
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Update the document
+     */
+    public function update(array $data): bool
+    {
+        return $this->databaseResource->updateDocument($this->getAbsoluteName(), $data);
+    }
+
+    /**
+     * Delete the document
+     */
+    public function delete(): bool
+    {
+        return $this->databaseResource->deleteDocument($this->getAbsoluteName());
+    }
+
+    /**
+     * Get a subcollection
+     */
+    public function collection(string $path): FirestoreCollectionContract
+    {
+        return $this->databaseResource->collection("{$this->getAbsoluteName()}/{$path}");
+    }
+
+    /**
+     * Get the document's parent collection
+     */
+    public function parent(): FirestoreCollectionContract
+    {
+        $parts = explode('/', trim($this->getAbsoluteName(), '/'));
+        array_pop($parts);
+        return $this->databaseResource->collection(implode('/', $parts));
+    }
+
+    /**
+     * Check if the document exists
+     */
+    public function exists(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the document's create time
+     */
+    public function createTime(): ?string
+    {
+        return $this->createTime;
+    }
+
+    /**
+     * Get the document's update time
+     */
+    public function updateTime(): ?string
+    {
+        return $this->updateTime;
+    }
 }

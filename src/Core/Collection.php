@@ -3,10 +3,16 @@
 namespace Frakt24\LaravelPHPFirestore\Core;
 
 use Frakt24\LaravelPHPFirestore\Contracts\FirestoreCollection as FirestoreCollectionContract;
-use Frakt24\LaravelPHPFirestore\Exceptions\Client\InvalidPathProvided;
-use Frakt24\LaravelPHPFirestore\Helpers\FirestoreHelper;
+use Frakt24\LaravelPHPFirestore\Contracts\FirestoreDocument;
+use Frakt24\LaravelPHPFirestore\Core\Document;
+use Frakt24\LaravelPHPFirestore\Core\Query as FirestoreQuery;
+use Frakt24\LaravelPHPFirestore\Core\Batch;
+use Frakt24\LaravelPHPFirestore\Core\DatabaseResource as FirestoreDatabaseResource;
+use Frakt24\LaravelPHPFirestore\Core\Snapshot as FirestoreSnapshot;
+use Frakt24\LaravelPHPFirestore\Core\StructuredQuery as FirestoreStructuredQuery;
+use Frakt24\LaravelPHPFirestore\Core\AggregationQuery as FirestoreAggregationQuery;
 
-class FirestoreCollection implements FirestoreCollectionContract
+class Collection implements FirestoreCollectionContract
 {
     /**
      * @var array
@@ -16,12 +22,17 @@ class FirestoreCollection implements FirestoreCollectionContract
     /**
      * @var string
      */
-    private $path;
+    protected $path;
+
+    /**
+     * @var array
+     */
+    protected $data;
 
     /**
      * @var \Frakt24\LaravelPHPFirestore\FirestoreDatabaseResource
      */
-    private $databaseResource;
+    protected $databaseResource;
 
     /**
      * @var array
@@ -39,7 +50,7 @@ class FirestoreCollection implements FirestoreCollectionContract
     private $readTime;
 
     /**
-     * FirestoreCollection constructor
+     * Collection constructor
      *
      * @param array $data Collection data from API
      * @param string $path Collection path
@@ -47,6 +58,7 @@ class FirestoreCollection implements FirestoreCollectionContract
      */
     public function __construct(array $data, string $path, FirestoreDatabaseResource $databaseResource)
     {
+        $this->data = $data;
         $this->path = $path;
         $this->databaseResource = $databaseResource;
         $this->nextPageToken = $data['nextPageToken'] ?? null;
@@ -54,7 +66,7 @@ class FirestoreCollection implements FirestoreCollectionContract
 
         if (isset($data['documents'])) {
             foreach ($data['documents'] as $document) {
-                $this->documents[] = new FirestoreDocument($document, $databaseResource);
+                $this->documents[] = new Document($document, $databaseResource);
             }
         }
     }
@@ -64,15 +76,140 @@ class FirestoreCollection implements FirestoreCollectionContract
      *
      * @return string
      */
-    public function getPath(): string
+    public function path(): string
     {
         return $this->path;
     }
 
     /**
+     * Add a document to the collection
+     *
+     * @param array|Document $data
+     * @param string|null $documentId
+     * @return FirestoreDocument
+     */
+    public function add($data, ?string $documentId = null): FirestoreDocument
+    {
+        if ($data instanceof Document) {
+            $data = $data->data();
+        }
+
+        $response = $this->databaseResource->addDocument($this->path, $data, $documentId);
+        return new Document(
+            $response['name'],
+            $this->path . '/' . ($documentId ?? basename($response['name'])),
+            $response,
+            $this->databaseResource
+        );
+    }
+
+    /**
+     * Add a document with automatic timestamps
+     *
+     * @param array|Document $data
+     * @param string|null $documentId
+     * @return FirestoreDocument
+     */
+    public function addWithTimestamp($data, ?string $documentId = null): FirestoreDocument
+    {
+        $data['created_at'] = ['timestampValue' => date('c')];
+        $data['updated_at'] = ['timestampValue' => date('c')];
+        return $this->add($data, $documentId);
+    }
+
+    /**
+     * Get a document by ID
+     *
+     * @param string $id
+     * @return FirestoreDocument
+     */
+    public function document(string $id): FirestoreDocument
+    {
+        $doc = $this->databaseResource->getDocument("{$this->path}/{$id}");
+        if (!$doc) {
+            throw new \RuntimeException("Document {$id} not found in collection {$this->path}");
+        }
+        return $doc;
+    }
+
+    /**
+     * Create a new query on the collection
+     *
+     * @return FirestoreQuery
+     */
+    public function query(): FirestoreQuery
+    {
+        return (new FirestoreQuery())->from($this->path);
+    }
+
+    /**
+     * Get a list of documents in the collection
+     *
+     * @param int $pageSize
+     * @return FirestoreSnapshot
+     */
+    public function list(int $pageSize = 100): FirestoreSnapshot
+    {
+        $response = $this->databaseResource->getClient()->request('GET', $this->path, [
+            'query' => [
+                'pageSize' => $pageSize
+            ]
+        ]);
+        
+        return new FirestoreSnapshot($response, $this->databaseResource);
+    }
+
+    /**
+     * Get a batch writer for the collection
+     *
+     * @return \Frakt24\LaravelPHPFirestore\Contracts\FirestoreBatch
+     */
+    public function batch(): \Frakt24\LaravelPHPFirestore\Contracts\FirestoreBatch
+    {
+        return new Batch($this->databaseResource->getClient());
+    }
+
+    /**
+     * Start a transaction on the collection
+     *
+     * @param callable $callback
+     * @return mixed
+     */
+    public function transaction(callable $callback)
+    {
+        return $this->databaseResource->getClient()->runTransaction($callback);
+    }
+
+    /**
+     * Get a subcollection
+     *
+     * @param string $path
+     * @return FirestoreCollectionContract
+     */
+    public function collection(string $path): FirestoreCollectionContract
+    {
+        $fullPath = "{$this->path}/{$path}";
+        return $this->databaseResource->collection($fullPath);
+    }
+
+    /**
+     * Listen for real-time updates
+     *
+     * @param callable $callback
+     * @param array $options
+     * @throws \RuntimeException
+     */
+    public function listen(callable $callback, array $options = [])
+    {
+        // Implementation depends on your real-time update strategy
+        // This could use WebSockets, Server-Sent Events, or long polling
+        throw new \RuntimeException('Real-time updates not implemented yet');
+    }
+
+    /**
      * Get all documents in the collection
      *
-     * @return FirestoreDocument[]
+     * @return array
      */
     public function getDocuments(): array
     {
@@ -120,55 +257,31 @@ class FirestoreCollection implements FirestoreCollectionContract
     }
 
     /**
-     * Add a new document to the collection
+     * Get the database resource
      *
-     * @param array|FirestoreDocument $data
-     * @param string|null $documentId
-     * @return FirestoreDocument
+     * @return FirestoreDatabaseResource
      */
-    public function addDocument($data, ?string $documentId = null): FirestoreDocument
+    public function getDatabaseResource(): FirestoreDatabaseResource
     {
-        return $this->databaseResource->addDocument($this->path, $data, $documentId);
+        return $this->databaseResource;
     }
 
     /**
-     * Get document by ID
+     * Get the collection path
      *
-     * @param string $documentId
-     * @return FirestoreDocument|null
+     * @return string
      */
-    public function getDocument(string $documentId): ?FirestoreDocument
+    public function getPath(): string
     {
-        return $this->databaseResource->getDocument("{$this->path}/{$documentId}");
-    }
-
-    /**
-     * List subcollections of this collection
-     *
-     * @param array $options Listing options
-     * @return array
-     */
-    public function listSubcollections(array $options = []): array
-    {
-        return $this->databaseResource->listCollections($this->path, $options);
-    }
-
-    /**
-     * Create a new query for this collection
-     *
-     * @return FirestoreStructuredQuery
-     */
-    public function query(): FirestoreStructuredQuery
-    {
-        return (new FirestoreStructuredQuery())->from($this->path);
+        return $this->path;
     }
 
     /**
      * Run a structured query
      *
      * @param FirestoreStructuredQuery $query
-     * @param array $options Query options (e.g., readTime)
-     * @return array Query results
+     * @param array $options
+     * @return array
      */
     public function runQuery(FirestoreStructuredQuery $query, array $options = []): array
     {
@@ -182,7 +295,7 @@ class FirestoreCollection implements FirestoreCollectionContract
         ]);
 
         return array_map(function($result) {
-            return new FirestoreDocument($result['document'], $this->databaseResource);
+            return new Document($result['document'], $this->databaseResource);
         }, $response);
     }
 
@@ -190,8 +303,8 @@ class FirestoreCollection implements FirestoreCollectionContract
      * Run an aggregation query
      *
      * @param FirestoreAggregationQuery $query
-     * @param array $options Query options (e.g., readTime)
-     * @return array Aggregation results
+     * @param array $options
+     * @return array
      */
     public function runAggregationQuery(FirestoreAggregationQuery $query, array $options = []): array
     {
@@ -210,10 +323,9 @@ class FirestoreCollection implements FirestoreCollectionContract
     /**
      * Check if a document exists in this collection
      *
-     * @param string $documentId Document ID to check
-     * @param array $options Additional options including:
-     *                      - readTime: Read state at this time (RFC 3339 format)
-     * @return bool True if the document exists
+     * @param string $documentId
+     * @param array $options
+     * @return bool
      */
     public function documentExists(string $documentId, array $options = []): bool
     {
@@ -232,15 +344,5 @@ class FirestoreCollection implements FirestoreCollectionContract
             // If we get a 404 or any other error, the document doesn't exist
             return false;
         }
-    }
-
-    /**
-     * Get the database resource
-     *
-     * @return FirestoreDatabaseResource
-     */
-    public function getDatabaseResource(): FirestoreDatabaseResource
-    {
-        return $this->databaseResource;
     }
 }
