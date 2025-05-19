@@ -23,19 +23,26 @@ class ServiceProvider extends BaseServiceProvider
         $this->app->singleton(Service::class, function ($app) {
             $config = $app['config']['firestore'];
 
-            $credentials = new FirestoreCredentials([
-                'type' => 'service_account',
-                'project_id' => $config['project_id'],
-                'private_key_id' => $config['private_key_id'],
-                'private_key' => $config['private_key'],
-                'client_email' => $config['client_email'],
-                'client_id' => $config['client_id'],
-                'auth_uri' => $config['auth_uri'] ?? 'https://accounts.google.com/o/oauth2/auth',
-                'token_uri' => $config['token_uri'] ?? 'https://oauth2.googleapis.com/token',
-                'auth_provider_x509_cert_url' => $config['auth_provider_x509_cert_url']
-                    ?? 'https://www.googleapis.com/oauth2/v1/certs',
-                'client_x509_cert_url' => $config['client_x509_cert_url']
-            ]);
+            // Check if credentials file is specified
+            if (isset($config['credentials_file']) && file_exists($config['credentials_file'])) {
+                $credentialsJson = json_decode(file_get_contents($config['credentials_file']), true);
+                $credentials = new FirestoreCredentials($credentialsJson);
+            } else {
+                // Fall back to individual credential fields
+                $credentials = new FirestoreCredentials([
+                    'type' => 'service_account',
+                    'project_id' => $config['project_id'],
+                    'private_key_id' => $config['private_key_id'],
+                    'private_key' => $config['private_key'],
+                    'client_email' => $config['client_email'],
+                    'client_id' => $config['client_id'],
+                    'auth_uri' => $config['auth_uri'] ?? 'https://accounts.google.com/o/oauth2/auth',
+                    'token_uri' => $config['token_uri'] ?? 'https://oauth2.googleapis.com/token',
+                    'auth_provider_x509_cert_url' => $config['auth_provider_x509_cert_url']
+                        ?? 'https://www.googleapis.com/oauth2/v1/certs',
+                    'client_x509_cert_url' => $config['client_x509_cert_url']
+                ]);
+            }
 
             return new Service($credentials, [
                 'database' => $config['database'] ?? '(default)',

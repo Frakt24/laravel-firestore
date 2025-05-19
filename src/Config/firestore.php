@@ -17,6 +17,7 @@ return [
     'client_email' => env('FIRESTORE_CLIENT_EMAIL'),
     'client_id' => env('FIRESTORE_CLIENT_ID'),
     'client_x509_cert_url' => env('FIRESTORE_CLIENT_CERT_URL'),
+    'credentials_file' => env('FIRESTORE_CREDENTIALS_FILE'),
 
     /*
     |--------------------------------------------------------------------------
